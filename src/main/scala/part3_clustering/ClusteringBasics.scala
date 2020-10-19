@@ -13,7 +13,7 @@ class ClusterSubscriber extends Actor with ActorLogging {
   override def preStart(): Unit = {
     cluster.subscribe(
       self,
-      initialStateMode = InitialStateAsEvents,
+      initialStateMode = InitialStateAsSnapshot,
       classOf[MemberEvent],
       classOf[UnreachableMember]
     )
@@ -52,7 +52,7 @@ object ClusteringBasics extends App {
       Thread.sleep(2000)
     }
 
-  startCluster(List(2552, 2551, 0))
+  startCluster(List(2552, 2551))
 }
 
 object ClusteringBasics_ManualRegistration extends App {

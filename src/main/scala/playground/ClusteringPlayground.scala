@@ -31,7 +31,7 @@ object ClusteringPlayground extends App {
          |  }
          |
          |  cluster {
-         |    seed-nodes = ["akka://RTJVMCluster@localhost:2551", "akka://RTJVMCluster@localhost:2552"]
+         |    seed-nodes = ["akka://RTJVMCluster@localhost:2551"]
          |  }
          |}
        """.stripMargin)
@@ -39,5 +39,5 @@ object ClusteringPlayground extends App {
     ActorSystem("RTJVMCluster", config)
   }
 
-  (2551 to 2553).foreach(startNode)
+  (2551 to 2554).foreach(startNode)
 }

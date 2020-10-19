@@ -1,6 +1,6 @@
 package part3_clustering
 
-import akka.actor.{Actor, ActorLogging, ActorSystem, Address, Props}
+import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
 import akka.cluster.Cluster
 import akka.cluster.ClusterEvent.{InitialStateAsEvents, MemberEvent, MemberRemoved, MemberUp}
 import com.typesafe.config.ConfigFactory
@@ -45,10 +45,10 @@ class ChatActor(nickname: String, port: Int) extends Actor with ActorLogging {
       context.become(online(chatRoom - member.address.toString))
 
     case EnterRoom(remoteAddress, remoteNickname) =>
-      if (remoteNickname != nickname) {
+//      if (remoteNickname != nickname) {
         log.info(s"$remoteNickname entered the room.")
         context.become(online(chatRoom + (remoteAddress -> remoteNickname)))
-      }
+//      }
 
     case UserMessage(contents) =>
       chatRoom.keys.foreach { remoteAddressAsString =>

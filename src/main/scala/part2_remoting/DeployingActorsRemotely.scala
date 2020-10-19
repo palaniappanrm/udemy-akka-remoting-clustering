@@ -1,7 +1,6 @@
 package part2_remoting
 
-import akka.actor.{Actor, ActorLogging, ActorSystem, Address, AddressFromURIString, Deploy, PoisonPill, Props, Terminated}
-import akka.remote.RemoteScope
+import akka.actor.{Actor, ActorLogging, ActorSystem, PoisonPill, Props, Terminated}
 import akka.routing.FromConfig
 import com.typesafe.config.ConfigFactory
 
@@ -13,22 +12,24 @@ object DeployingActorsRemotely_LocalApp extends App {
 
   // actor path of a remotely deployed actor
   println(simpleActor)
+  Thread.sleep(5000)
   // expected: akka://RemoteActorSystem@localhost:2552/user/remoteActor
   // actual: akka://RemoteActorSystem@localhost:2552/remote/akka/LocalActorSystem@localhost:2551/user/remoteActor
 
   // programmatic remote deployment
-  val remoteSystemAddress: Address = AddressFromURIString("akka://RemoteActorSystem@localhost:2552")
-  val remotelyDeployedActor = system.actorOf(
-    Props[SimpleActor].withDeploy(
-      Deploy(scope = RemoteScope(remoteSystemAddress))
-    )
-  )
-
-  remotelyDeployedActor ! "hi, remotely deployed actor!"
+//  val remoteSystemAddress: Address = AddressFromURIString("akka://RemoteActorSystem@localhost:2552")
+//  val remotelyDeployedActor = system.actorOf(
+//    Props[SimpleActor].withDeploy(
+//      Deploy(scope = RemoteScope(remoteSystemAddress))
+//    )
+//  )
+//
+//  remotelyDeployedActor ! "hi, remotely deployed actor!"
 
   // routers with routees deployed remotely
   val poolRouter = system.actorOf(FromConfig.props(Props[SimpleActor]), "myRouterWithRemoteChildren")
-  (1 to 10).map(i => s"message $i").foreach(poolRouter ! _)
+  Thread.sleep(5000)
+//  (1 to 10).map(i => s"message $i").foreach(poolRouter ! _)
 
   // watching remote actors
   class ParentActor extends Actor with ActorLogging {
@@ -37,6 +38,7 @@ object DeployingActorsRemotely_LocalApp extends App {
         log.info("Creating remote child")
         val child = context.actorOf(Props[SimpleActor], "remoteChild")
         context.watch(child)
+        child ! "Hey!"
       case Terminated(ref) =>
         log.warning(s"Child $ref terminated")
     }
@@ -44,8 +46,8 @@ object DeployingActorsRemotely_LocalApp extends App {
 
   val parentActor = system.actorOf(Props[ParentActor], "watcher")
   parentActor ! "create"
-//  Thread.sleep(1000)
-//  system.actorSelection("akka://RemoteActorSystem@localhost:2552/remote/akka/LocalActorSystem@localhost:2551/user/watcher/remoteChild") ! PoisonPill
+  Thread.sleep(5000)
+  system.actorSelection("akka://RemoteActorSystem@localhost:2552/remote/akka/LocalActorSystem@localhost:2551/user/watcher/remoteChild") ! PoisonPill
 
 
 }

@@ -122,7 +122,7 @@ class Worker extends Actor with ActorLogging {
 
   override def receive: Receive = {
     case ProcessLine(line, aggregator) =>
-      log.info(s"Processing: $line")
+//      log.info(s"Processing: $line")
       aggregator ! ProcessLineResult(line.split(" ").length)
   }
 }
@@ -147,7 +147,7 @@ object SeedNodes extends App {
 
   import ClusteringExampleDomain._
   Thread.sleep(10000)
-  master ! ProcessFile("src/main/resources/txt/lipsum.txt")
+  master ! ProcessFile("/Users/palaniappan/personal_projects/udemy-akka-remoting-clustering/src/main/resources/txt/lipsum.txt")
 }
 
 object AdditionalWorker extends App {

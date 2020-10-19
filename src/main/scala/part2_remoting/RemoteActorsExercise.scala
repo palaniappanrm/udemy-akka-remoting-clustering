@@ -89,7 +89,6 @@ class WordCountMaster extends Actor with ActorLogging {
 }
 
 object MasterApp extends App {
-  import WordCountDomain._
 
   val config = ConfigFactory.parseString(
     """
@@ -100,10 +99,10 @@ object MasterApp extends App {
   val system = ActorSystem("MasterSystem", config)
 
   val master = system.actorOf(Props[WordCountMaster], "wordCountMaster")
-  master ! Initialize(5)
-  Thread.sleep(1000)
+//  master ! Initialize(5)
+//  Thread.sleep(1000)
 
-  scala.io.Source.fromFile("src/main/resources/txt/lipsum.txt").getLines().foreach { line =>
+  scala.io.Source.fromFile("/Users/palaniappan/personal_projects/udemy-akka-remoting-clustering/src/main/resources/txt/lipsum.txt").getLines().foreach { line =>
     master ! line
   }
 }

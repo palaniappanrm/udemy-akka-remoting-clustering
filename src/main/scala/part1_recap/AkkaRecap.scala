@@ -1,7 +1,7 @@
 package part1_recap
 
 import akka.actor.SupervisorStrategy.{Restart, Stop}
-import akka.actor.{Actor, ActorLogging, ActorSystem, OneForOneStrategy, PoisonPill, Props, Stash, SupervisorStrategy}
+import akka.actor.{Actor, ActorLogging, ActorSystem, OneForOneStrategy, Props, Stash, SupervisorStrategy}
 import akka.util.Timeout
 
 object AkkaRecap extends App {
@@ -18,7 +18,11 @@ object AkkaRecap extends App {
         context.become(anotherHandler)
 
       case "change" => context.become(anotherHandler)
-      case message => println(s"I received: $message")
+      case message => {
+        println(self)
+        println(s"I received: $message")
+        sender() ! "hi"
+      }
     }
 
     def anotherHandler: Receive = {
@@ -40,7 +44,7 @@ object AkkaRecap extends App {
   // #1: you can only instantiate an actor through the actor system
   val actor = system.actorOf(Props[SimpleActor], "simpleActor")
   // #2: sending messages
-  actor ! "hello"
+//  actor ! "hello"
   /*
     - messages are sent asynchronously
     - many actors (in the millions) can share a few dozen threads
@@ -55,7 +59,7 @@ object AkkaRecap extends App {
   // actors have a defined lifecycle: they can be started, stopped, suspended, resumed, restarted
 
   // stopping actors - context.stop
-  actor ! PoisonPill
+//  actor ! PoisonPill
 
   // logging
   // supervision
@@ -66,18 +70,20 @@ object AkkaRecap extends App {
   import system.dispatcher
 
   import scala.concurrent.duration._
-  system.scheduler.scheduleOnce(2 seconds) {
-    actor ! "delayed happy birthday!"
-  }
+//  system.scheduler.scheduleOnce(2 seconds) {
+//    actor ! "delayed happy birthday!"
+//  }
 
   // Akka patterns including FSM + ask pattern
   import akka.pattern.ask
   implicit val timeout = Timeout(3 seconds)
 
-  val future = actor ? "question"
+//  asks work differently bec even if we call from places outside of actors, sender() ! doesn't throw dead letter warning whereas below piping does
+  val future = actor ? "question" // ask behavior works well with return type whereas just piping like below will try to send to dead letters
 
   // the pipe pattern
   import akka.pattern.pipe
   val anotherActor = system.actorOf(Props[SimpleActor], "anotherSimpleActor")
-  future.mapTo[String].pipeTo(anotherActor)
+  val test = future.mapTo[String].pipeTo(anotherActor)
+  test onComplete println
 }
